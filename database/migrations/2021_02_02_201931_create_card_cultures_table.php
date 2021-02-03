@@ -16,6 +16,8 @@ class CreateCardCulturesTable extends Migration
         Schema::create('card_cultures', function (Blueprint $table) {
             $table->id();
             $table->string('name')->index();
+            $table->foreignId('game_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('card_alignment_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -17,7 +17,7 @@ class CreateSeriesTable extends Migration
             $table->id();
             $table->string('name')->nullable()->index();
             $table->foreignId('game_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->unsignedInteger('series_index')->nullable();
+            $table->unsignedInteger('set_number')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

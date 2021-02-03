@@ -15,6 +15,7 @@ class CreateCardRaritiesTable extends Migration
     {
         Schema::create('card_rarities', function (Blueprint $table) {
             $table->id();
+            $table->string('label')->index();
             $table->string('name')->index();
             $table->foreignId('game_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();

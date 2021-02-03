@@ -15,6 +15,8 @@ class CardVariant extends Resource
      */
     public static $model = \App\Models\CardVariant::class;
 
+    public static $group = 'Administration';
+
     /**
      * The single value that should be used to represent the resource when being displayed.
      *

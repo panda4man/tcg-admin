@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class CardCulture extends Model
+class CardAlignment extends Model
 {
     use HasFactory;
     use SoftDeletes;
@@ -16,13 +16,13 @@ class CardCulture extends Model
     // -----------------------
     //      Relationships
 
+    public function cultures()
+    {
+        return $this->hasMany(CardCulture::class);
+    }
+
     public function game()
     {
         return $this->belongsTo(Game::class);
-    }
-
-    public function alignment()
-    {
-        return $this->belongsTo(CardAlignment::class, 'card_alignment_id');
     }
 }

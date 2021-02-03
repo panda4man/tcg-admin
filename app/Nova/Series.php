@@ -2,9 +2,11 @@
 
 namespace App\Nova;
 
+use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
-use Laravel\Nova\Http\Requests\NovaRequest;
+use Laravel\Nova\Fields\Number;
+use Laravel\Nova\Fields\Text;
 
 class Series extends Resource
 {
@@ -14,6 +16,8 @@ class Series extends Resource
      * @var string
      */
     public static $model = \App\Models\Series::class;
+
+    public static $group = 'Administration';
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -41,6 +45,11 @@ class Series extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
+            Text::make('Name')->sortable()->rules('required'),
+            Number::make('Set Number')->sortable()->rules('required'),
+            Images::make('Main image', 'primary') // second parameter is the media collection name
+            ->conversionOnIndexView('thumb') // conversion used to display the image
+            ->rules('nullable'), // validation rules
         ];
     }
 
