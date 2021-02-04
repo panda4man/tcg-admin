@@ -65,6 +65,12 @@ namespace App\Models{
 /**
  * App\Models\CardAlignment
  *
+ * @property int $id
+ * @property string $name
+ * @property int $game_id
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \Illuminate\Database\Eloquent\Collection|\App\Models\CardCulture[] $cultures
  * @property-read int|null $cultures_count
  * @property-read \App\Models\Game $game
@@ -73,6 +79,12 @@ namespace App\Models{
  * @method static \Illuminate\Database\Eloquent\Builder|CardAlignment newQuery()
  * @method static \Illuminate\Database\Query\Builder|CardAlignment onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CardAlignment query()
+ * @method static \Illuminate\Database\Eloquent\Builder|CardAlignment whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CardAlignment whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CardAlignment whereGameId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CardAlignment whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CardAlignment whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CardAlignment whereUpdatedAt($value)
  * @method static \Illuminate\Database\Query\Builder|CardAlignment withTrashed()
  * @method static \Illuminate\Database\Query\Builder|CardAlignment withoutTrashed()
  */
@@ -85,18 +97,23 @@ namespace App\Models{
  *
  * @property int $id
  * @property string $name
+ * @property int $game_id
+ * @property int $card_alignment_id
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property \Illuminate\Support\Carbon|null $deleted_at
  * @property-read \App\Models\CardAlignment $alignment
  * @property-read \App\Models\Game $game
+ * @method static \Illuminate\Database\Eloquent\Builder|CardCulture forAlignment(\App\Models\CardAlignment $alignment)
  * @method static \Illuminate\Database\Eloquent\Builder|CardCulture forGame(\App\Models\Game $game)
  * @method static \Illuminate\Database\Eloquent\Builder|CardCulture newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|CardCulture newQuery()
  * @method static \Illuminate\Database\Query\Builder|CardCulture onlyTrashed()
  * @method static \Illuminate\Database\Eloquent\Builder|CardCulture query()
+ * @method static \Illuminate\Database\Eloquent\Builder|CardCulture whereCardAlignmentId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CardCulture whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CardCulture whereDeletedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|CardCulture whereGameId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CardCulture whereId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CardCulture whereName($value)
  * @method static \Illuminate\Database\Eloquent\Builder|CardCulture whereUpdatedAt($value)

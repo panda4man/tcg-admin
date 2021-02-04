@@ -50,6 +50,10 @@ class CardCulturesTableSeeder extends Seeder
                 'alignment' => 'shadow',
             ],
             [
+                'name'      => 'Gollum',
+                'alignment' => 'shadow',
+            ],
+            [
                 'name'      => 'Isengard',
                 'alignment' => 'shadow',
             ],
@@ -100,7 +104,10 @@ class CardCulturesTableSeeder extends Seeder
         collect($cultures)->each(function ($block) use ($game, $map) {
             $culture = CardCulture::where([
                 'name' => $block['name']
-            ])->forGame($game)->first();
+            ])
+                ->forAlignment($map[$block['alignment']])
+                ->forGame($game)
+                ->first();
 
             if (!$culture) {
                 $culture = CardCulture::make([

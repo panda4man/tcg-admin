@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
@@ -50,6 +51,7 @@ class Series extends Resource
             Images::make('Main image', 'primary') // second parameter is the media collection name
             ->conversionOnIndexView('thumb') // conversion used to display the image
             ->rules('nullable'), // validation rules
+            BelongsTo::make('Game')
         ];
     }
 

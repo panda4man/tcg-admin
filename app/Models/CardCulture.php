@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasGame;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -24,5 +25,15 @@ class CardCulture extends Model
     public function alignment()
     {
         return $this->belongsTo(CardAlignment::class, 'card_alignment_id');
+    }
+
+    // -----------------------
+    //      Scopes
+
+    public function scopeForAlignment(Builder $query, CardAlignment $alignment): void
+    {
+        $query->whereHas('alignment', function (Builder $q) use($alignment) {
+            $q->where("{$alignment->getTable()}.id", $alignment->id);
+        });
     }
 }

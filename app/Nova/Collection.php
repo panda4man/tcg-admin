@@ -15,6 +15,8 @@ class Collection extends Resource
      */
     public static $model = \App\Models\Collection::class;
 
+    public static $group = 'Personal';
+
     /**
      * The single value that should be used to represent the resource when being displayed.
      *
