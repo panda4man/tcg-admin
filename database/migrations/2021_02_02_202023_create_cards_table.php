@@ -23,6 +23,7 @@ class CreateCardsTable extends Migration
             $table->string('subtype')->nullable();
             $table->text('game_text')->nullable();
             $table->text('lore')->nullable();
+            $table->foreignId('series_id')->nullable()->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->foreignId('card_rarity_id')->nullable()->constrained()->onDelete('set null')->onUpdate('cascade');
             $table->foreignId('card_culture_id')->nullable()->constrained()->onDelete('set null')->onUpdate('cascade');
             $table->timestamps();

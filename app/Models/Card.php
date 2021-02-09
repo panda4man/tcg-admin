@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,6 +16,8 @@ class Card extends Model implements HasMedia
     use SoftDeletes;
     use InteractsWithMedia;
 
+    protected $fillable = ['title', 'card_number', 'game_text', 'lore'];
+
     // -----------------------
     //      Relationships
 
@@ -25,7 +28,7 @@ class Card extends Model implements HasMedia
 
     public function culture()
     {
-        return $this->belongsTo(CardCulture::class);
+        return $this->belongsTo(CardCulture::class, 'card_culture_id');
     }
 
     public function series()
@@ -35,12 +38,22 @@ class Card extends Model implements HasMedia
 
     public function rarity()
     {
-        return $this->belongsTo(CardRarity::class);
+        return $this->belongsTo(CardRarity::class, 'card_rarity_id');
     }
 
     public function variants()
     {
         return $this->hasMany(CardVariant::class);
+    }
+
+    // -----------------------
+    //      Scopes
+
+    public function scopeForSeries(Builder $query, Series $series)
+    {
+        $query->whereHas('series', function (Builder $q) use($series) {
+            $q->where("{$series->getTable()}.id", $series->id);
+        });
     }
 
     // -----------------------
