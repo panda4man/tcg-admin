@@ -18,6 +18,10 @@ class CardCulturesTableSeeder extends Seeder
     {
         $cultures = [
             [
+                'name'      => 'Site',
+                'alignment' => null
+            ],
+            [
                 'name'      => 'Dwarven',
                 'alignment' => 'free',
             ],
@@ -105,7 +109,9 @@ class CardCulturesTableSeeder extends Seeder
             $culture = CardCulture::where([
                 'name' => $block['name']
             ])
-                ->forAlignment($map[$block['alignment']])
+                ->when($map[$block['alignment']] ?? null, function ($query) use($map, $block){
+                    $query->forAlignment($map[$block['alignment']]);
+                })
                 ->forGame($game)
                 ->first();
 
@@ -113,7 +119,7 @@ class CardCulturesTableSeeder extends Seeder
                 $culture = CardCulture::make([
                     'name' => $block['name']
                 ]);
-                $culture->alignment()->associate($map[$block['alignment']]);
+                $culture->alignment()->associate($map[$block['alignment']] ?? null);
                 $culture->game()->associate($game)->save();
             }
         });

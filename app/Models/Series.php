@@ -19,6 +19,8 @@ class Series extends Model implements HasMedia
 
     protected $fillable = ['name', 'set_number'];
 
+    protected $withCount = ['cards'];
+
     // -----------------------
     //      Relationships
 

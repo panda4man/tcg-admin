@@ -47,7 +47,7 @@ class CardCulture extends Resource
             ID::make(__('ID'), 'id')->sortable(),
             Text::make('Name')->sortable()->rules('required'),
             BelongsTo::make('Game'),
-            BelongsTo::make('Card Alignment', 'alignment')
+            BelongsTo::make('Card Alignment', 'alignment')->nullable()
         ];
     }
 

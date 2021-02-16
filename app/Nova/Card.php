@@ -53,7 +53,7 @@ class Card extends Resource
         return [
             ID::make(__('ID'), 'id')->sortable(),
             Number::make('Card Number')->rules('nullable')->sortable(),
-            BelongsTo::make('Card Rarity', 'rarity'),
+            BelongsTo::make('Card Rarity', 'rarity')->sortable(),
             Text::make('Title')->sortable(),
             Text::make('Game Text')->rules('nullable')->hideFromIndex(),
             BelongsTo::make('Series'),

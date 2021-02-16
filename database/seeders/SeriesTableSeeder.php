@@ -17,6 +17,10 @@ class SeriesTableSeeder extends Seeder
     {
         $series = [
             [
+                'name'       => 'Promotional',
+                'set_number' => 0,
+            ],
+            [
                 'name'       => 'Fellowship of the Ring',
                 'set_number' => 1,
             ],

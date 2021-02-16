@@ -17,7 +17,7 @@ class CreateCardCulturesTable extends Migration
             $table->id();
             $table->string('name')->index();
             $table->foreignId('game_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
-            $table->foreignId('card_alignment_id')->constrained()->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('card_alignment_id')->nullable()->constrained()->onDelete('cascade')->onUpdate('cascade');
             $table->timestamps();
             $table->softDeletes();
         });

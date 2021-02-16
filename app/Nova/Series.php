@@ -49,6 +49,9 @@ class Series extends Resource
             ID::make(__('ID'), 'id')->sortable(),
             Text::make('Name')->sortable()->rules('required'),
             Number::make('Set Number')->sortable()->rules('required'),
+            Number::make('Cards', function () {
+                return $this->cards_count;
+            }),
             Images::make('Main image', 'primary') // second parameter is the media collection name
             ->conversionOnIndexView('thumb') // conversion used to display the image
             ->rules('nullable'), // validation rules
