@@ -17,6 +17,26 @@ class CardRaritiesTableSeeder extends Seeder
     {
         $rarities = [
             [
+                'name' => 'AFD',
+                'label' => 'April Fool\'s Day'
+            ],
+            [
+                'name' => 'D',
+                'label' => 'Reprint',
+            ],
+            [
+                'name' => 'M',
+                'label' => 'Oversized'
+            ],
+            [
+                'name' => 'SPD',
+                'label' => 'Saint Patrick\'s Day'
+            ],
+            [
+                'name' => 'W',
+                'label' => 'Online only'
+            ],
+            [
                 'name'  => 'R',
                 'label' => 'Rare'
             ],

@@ -51,8 +51,15 @@ class Card extends Model implements HasMedia
 
     public function scopeForSeries(Builder $query, Series $series)
     {
-        $query->whereHas('series', function (Builder $q) use($series) {
+        $query->whereHas('series', function (Builder $q) use ($series) {
             $q->where("{$series->getTable()}.id", $series->id);
+        });
+    }
+
+    public function scopeForRarity(Builder $query, CardRarity $rarity)
+    {
+        $query->whereHas('rarity', function (Builder $q) use ($rarity) {
+            $q->where("{$rarity->getTable()}.id", $rarity->id);
         });
     }
 

@@ -19,7 +19,7 @@ class ImportLotrTcgCards extends Command
      * @var string
      */
     protected $signature = 'import:lotr-tcg:cards
-    {--S|series= : Choose the series you want to import}';
+    {--S|series : Choose the series you want to import}';
 
     /**
      * The console command description.
@@ -45,10 +45,20 @@ class ImportLotrTcgCards extends Command
      */
     public function handle()
     {
-        $series  = $this->option('series');
-        $crawler = Goutte::request('GET', $this->base_url . 'wiki/grand');
+        $series        = $this->option('series');
+        $crawler       = Goutte::request('GET', $this->base_url . 'wiki/grand');
+        $series_items  = Series::orderBy('set_number')->get();
+        $series_choice = null;
 
-        $crawler->filter('.level1 table.inline tr:not(.row0)')->each(function (Crawler $node) use ($series) {
+        if ($series) {
+            $series_choice = $this->choice("Choose your series", $series_items->pluck('set_number')->toArray());
+        }
+
+        if ($series_choice != null) {
+            $this->info("Processing series: " . $series_items->where('set_number', $series_choice)->first()->name);
+        }
+
+        $crawler->filter('.level1 table.inline tr:not(.row0)')->each(function (Crawler $node) use ($series_choice) {
             $card_info_node = $node->filter('td.col0')->first();
 
             if (!$card_info_node) {
@@ -61,9 +71,9 @@ class ImportLotrTcgCards extends Command
                 return true;
             }
 
-            if (!isset($series)) {
+            if (!isset($series_choice)) {
                 $this->parseRow($node);
-            } else if ($series === $matches[1]) {
+            } else if ($series_choice == $matches[1]) {
                 $this->parseRow($node);
             }
 
@@ -75,8 +85,8 @@ class ImportLotrTcgCards extends Command
 
     private function parseRow(Crawler $row): void
     {
-        $link_cell = $row->filter('td.col1 a')->first();
-        $info_cell = $row->filter('td.col0')->first();
+        $link_cell    = $row->filter('td.col1 a')->first();
+        $info_cell    = $row->filter('td.col0')->first();
         $culture_cell = $row->filter('td.col3 a')->first();
 
         if (!$link_cell || !$info_cell || !$culture_cell) {
@@ -92,14 +102,16 @@ class ImportLotrTcgCards extends Command
 
         $card_number = $info_details[3];
         $rarity      = $this->getCardRarity(strtoupper($info_details[2]));
-        $culture = CardCulture::whereName($culture_cell->text())->first();
-        $card        = Card::forSeries($series)->whereCardNumber($card_number)->first();
+        $culture     = CardCulture::whereName($culture_cell->text())->first();
+        $card        = Card::forSeries($series)
+            ->forRarity($rarity)
+            ->whereCardNumber($card_number)
+            ->first();
 
         $data = [
             'title'       => $link_cell->text(),
             'card_number' => $card_number,
         ];
-        dd($data, $rarity, $culture_cell->text());
 
         if (!$card) {
             $card = Card::make($data);
@@ -114,11 +126,17 @@ class ImportLotrTcgCards extends Command
 
         $href             = $link_cell->attr('href');
         $card_details_url = $this->base_url . $href;
-        //$crawler          = Goutte::request('GET', $card_details_url);
+        $crawler          = Goutte::request('GET', $card_details_url);
+        $this->getCardSpecificDetails($card, $crawler);
 
     }
 
-    private function parseCardInfo(Crawler $node)
+    private function getCardSpecificDetails(Card $card, Crawler $crawler)
+    {
+        //get card specific details
+    }
+
+    private function parseCardInfo(Crawler $node): array
     {
         $card_info = $node->text();
         $regex     = "/(\d+)([RUCPSAFDWMPO\+]+)(\d+)?(T?)/";
@@ -133,7 +151,7 @@ class ImportLotrTcgCards extends Command
             'name' => $name
         ]);
 
-        if(!$rarity) {
+        if (!$rarity) {
             $rarity = CardRarity::make([
                 'name' => $name
             ]);
