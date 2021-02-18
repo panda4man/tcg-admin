@@ -26,6 +26,8 @@ class Card extends Resource
      */
     public static $title = 'id';
 
+    public static $perPageOptions = [10, 25, 50];
+
     /**
      * The columns that should be searched.
      *

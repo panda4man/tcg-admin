@@ -7,7 +7,6 @@ use App\Models\CardRarity;
 use App\Models\Series;
 use Goutte;
 use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
 class ImportLotrTcgSeries extends Command

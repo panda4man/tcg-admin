@@ -9,6 +9,7 @@ use App\Models\Game;
 use App\Models\Series;
 use Goutte;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
 class ImportLotrTcgCards extends Command
@@ -19,7 +20,8 @@ class ImportLotrTcgCards extends Command
      * @var string
      */
     protected $signature = 'import:lotr-tcg:cards
-    {--S|series : Choose the series you want to import}';
+    {--S|series : Choose the series you want to import}
+    {--I|image : Overwrite existing image}';
 
     /**
      * The console command description.
@@ -30,6 +32,7 @@ class ImportLotrTcgCards extends Command
 
     private string $base_url = 'https://lotrtcgwiki.com/';
     private ?Game $game = null;
+    private bool $overwrite_image = false;
 
     public function __construct()
     {
@@ -45,10 +48,11 @@ class ImportLotrTcgCards extends Command
      */
     public function handle()
     {
-        $series        = $this->option('series');
-        $crawler       = Goutte::request('GET', $this->base_url . 'wiki/grand');
-        $series_items  = Series::orderBy('set_number')->get();
-        $series_choice = null;
+        $series                = $this->option('series');
+        $this->overwrite_image = $this->option('image');
+        $crawler               = Goutte::request('GET', $this->base_url . 'wiki/grand');
+        $series_items          = Series::orderBy('set_number')->get();
+        $series_choice         = null;
 
         if ($series) {
             $series_choice = $this->choice("Choose your series", $series_items->pluck('set_number')->toArray());
@@ -100,10 +104,17 @@ class ImportLotrTcgCards extends Command
             return;
         }
 
+        $this->info("Importing: " . $link_cell->text());
+
         $card_number = $info_details[3];
-        $rarity      = $this->getCardRarity(strtoupper($info_details[2]));
-        $culture     = CardCulture::whereName($culture_cell->text())->first();
-        $card        = Card::forSeries($series)
+
+        if (!is_null($card_number) && strlen($card_number) < 1) {
+            $card_number = null;
+        }
+
+        $rarity  = $this->getCardRarity(strtoupper($info_details[2]));
+        $culture = CardCulture::whereName($culture_cell->text())->first();
+        $card    = Card::forSeries($series)
             ->forRarity($rarity)
             ->whereCardNumber($card_number)
             ->first();
@@ -133,7 +144,56 @@ class ImportLotrTcgCards extends Command
 
     private function getCardSpecificDetails(Card $card, Crawler $crawler)
     {
-        //get card specific details
+        $image_el = $crawler->filter('.level1 .plugin_wrap span.curid a.media img.media')->first();
+        $details_table = $crawler->filter('.level1 .wrap_db2 .table table')->first();
+
+        if ($image_el) {
+            $this->importCardImage($card, $image_el);
+        }
+
+        if($details_table) {
+            $this->importCardStats($card, $details_table);
+        }
+    }
+
+    private function importCardStats(Card $card, Crawler $table)
+    {
+        $table->filter('tr')->each(function (Crawler $row) use($card) {
+            $cell0 = $row->filter('td.col0 a')->first();
+            $cell1 = $row->filter('td.col1')->first();
+
+            if(!$cell0->count() || !$cell1->count()) {
+                return true;
+            }
+
+            if($cell0->count() == 'Game Text') {
+                $card->game_text = $cell1->text();
+            }
+
+            return true;
+        });
+
+        $card->save();
+    }
+
+    private function importCardImage(Card $card, Crawler $image_el): void
+    {
+        $uri = $image_el->attr('src');
+
+        if (Str::endsWith($uri, '/')) {
+            $uri = ltrim($uri, '/');
+        }
+
+        $url = $this->base_url . $uri;
+
+        if ($this->overwrite_image) {
+            if($card->hasMedia('primary')) {
+                $card->deleteMedia($card->getFirstMedia('primary')->id);
+            }
+
+            $this->info("> Importing card image");
+            $card->addMediaFromUrl($url)->toMediaCollection('primary');
+        }
     }
 
     private function parseCardInfo(Crawler $node): array
