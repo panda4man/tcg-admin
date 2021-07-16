@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Card;
 use App\Models\Game;
+use App\Models\Series;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,7 +28,9 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Relation::morphMap([
-            'game' => Game::class
+            'card' => Card::class,
+            'game' => Game::class,
+            'series' => Series::class,
         ]);
     }
 }

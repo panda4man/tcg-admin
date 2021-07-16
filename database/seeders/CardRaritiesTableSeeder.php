@@ -41,6 +41,10 @@ class CardRaritiesTableSeeder extends Seeder
                 'label' => 'Rare'
             ],
             [
+                'name'  => 'R+',
+                'label' => 'Rare Plus'  
+            ],
+            [
                 'name'  => 'U',
                 'label' => 'Uncommon'
             ],

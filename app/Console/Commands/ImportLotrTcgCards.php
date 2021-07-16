@@ -34,13 +34,6 @@ class ImportLotrTcgCards extends Command
     private ?Game $game = null;
     private bool $overwrite_image = false;
 
-    public function __construct()
-    {
-        parent::__construct();
-
-        $this->game = Game::find(1);
-    }
-
     /**
      * Execute the console command.
      *
@@ -48,6 +41,7 @@ class ImportLotrTcgCards extends Command
      */
     public function handle()
     {
+        $this->game = Game::find(1);
         $series                = $this->option('series');
         $this->overwrite_image = $this->option('image');
         $crawler               = Goutte::request('GET', $this->base_url . 'wiki/grand');
