@@ -5,10 +5,12 @@ namespace App\Console\Commands;
 use App\Models\Card;
 use App\Models\CardCulture;
 use App\Models\CardRarity;
+use App\Models\CardVariant;
 use App\Models\Game;
 use App\Models\Series;
 use Goutte;
 use Illuminate\Console\Command;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Symfony\Component\DomCrawler\Crawler;
 
@@ -21,7 +23,8 @@ class ImportLotrTcgCards extends Command
      */
     protected $signature = 'import:lotr-tcg:cards
     {--S|series : Choose the series you want to import}
-    {--I|image : Overwrite existing image}';
+    {--I|image : Overwrite existing image}
+    {--T|tengwar : Only import tengwar cards}';
 
     /**
      * The console command description.
@@ -33,6 +36,7 @@ class ImportLotrTcgCards extends Command
     private string $base_url = 'https://lotrtcgwiki.com/';
     private ?Game $game = null;
     private bool $overwrite_image = false;
+    private bool $only_tengwar = false;
 
     /**
      * Execute the console command.
@@ -41,9 +45,10 @@ class ImportLotrTcgCards extends Command
      */
     public function handle()
     {
-        $this->game = Game::find(1);
+        $this->game            = Game::find(1);
         $series                = $this->option('series');
         $this->overwrite_image = $this->option('image');
+        $this->only_tengwar    = $this->option('tengwar');
         $crawler               = Goutte::request('GET', $this->base_url . 'wiki/grand');
         $series_items          = Series::orderBy('set_number')->get();
         $series_choice         = null;
@@ -93,6 +98,11 @@ class ImportLotrTcgCards extends Command
 
         $info_details = $this->parseCardInfo($info_cell);
         $series       = Series::whereSetNumber($info_details[1])->first();
+        $is_tengwar   = $info_details[4] == 'T';
+
+        if($this->only_tengwar && !$is_tengwar) {
+            return;
+        }
 
         if (!$series) {
             return;
@@ -106,61 +116,95 @@ class ImportLotrTcgCards extends Command
             $card_number = null;
         }
 
+        # Card relationships
         $rarity  = $this->getCardRarity(strtoupper($info_details[2]));
         $culture = CardCulture::whereName($culture_cell->text())->first();
         $card    = Card::forSeries($series)
-            ->forRarity($rarity)
-            ->whereCardNumber($card_number)
-            ->first();
+                       ->forRarity($rarity)
+                       ->whereCardNumber($card_number)
+                       ->first();
 
-        $data = [
-            'title'       => $link_cell->text(),
-            'card_number' => $card_number,
-        ];
-
-        if (!$card) {
-            $card = Card::make($data);
-        } else {
-            $card->fill($data);
-        }
-
-        $card->series()->associate($series);
-        $card->rarity()->associate($rarity);
-        $card->culture()->associate($culture);
-        $card->save();
-
+        # Card details crawler
         $href             = $link_cell->attr('href');
         $card_details_url = $this->base_url . $href;
         $crawler          = Goutte::request('GET', $card_details_url);
-        $this->getCardSpecificDetails($card, $crawler);
 
+        if ($is_tengwar) {
+            if (is_null($card)) {
+                return;
+            }
+
+            $data = [
+                'name'        => $link_cell->text(),
+                'description' => 'Tengwar'
+            ];
+
+            $variant = $card->variants()->tengwar()->first();
+
+            if (!$variant) {
+                $variant = CardVariant::make($data);
+                $variant->card()
+                        ->associate($card)
+                        ->save();
+
+                $this->getCardImage($variant, $crawler);
+            }
+        } else {
+            $data = [
+                'title'       => $link_cell->text(),
+                'card_number' => $card_number,
+            ];
+
+            if (!$card) {
+                $card = Card::make($data);
+            } else {
+                $card->fill($data);
+            }
+
+            $card->series()->associate($series);
+            $card->rarity()->associate($rarity);
+            $card->culture()->associate($culture);
+            $card->save();
+
+            $this->getCardSpecificDetails($card, $crawler);
+        }
     }
 
-    private function getCardSpecificDetails(Card $card, Crawler $crawler)
+    private function getCardSpecificDetails(Model $model, Crawler $crawler)
+    {
+        $this->getCardImage($model, $crawler);
+        $this->getCardStats($model, $crawler);
+    }
+
+    public function getCardImage(Model $model, Crawler $crawler)
     {
         $image_el = $crawler->filter('.level1 .plugin_wrap span.curid a.media img.media')->first();
-        $details_table = $crawler->filter('.level1 .wrap_db2 .table table')->first();
 
         if ($image_el) {
-            $this->importCardImage($card, $image_el);
+            $this->importCardImage($model, $image_el);
         }
+    }
 
-        if($details_table) {
+    public function getCardStats(Card $card, Crawler $crawler)
+    {
+        $details_table = $crawler->filter('.level1 .wrap_db2 .table table')->first();
+
+        if ($details_table) {
             $this->importCardStats($card, $details_table);
         }
     }
 
     private function importCardStats(Card $card, Crawler $table)
     {
-        $table->filter('tr')->each(function (Crawler $row) use($card) {
+        $table->filter('tr')->each(function (Crawler $row) use ($card) {
             $cell0 = $row->filter('td.col0 a')->first();
             $cell1 = $row->filter('td.col1')->first();
 
-            if(!$cell0->count() || !$cell1->count()) {
+            if (!$cell0->count() || !$cell1->count()) {
                 return true;
             }
 
-            if($cell0->count() == 'Game Text') {
+            if ($cell0->count() == 'Game Text') {
                 $card->game_text = $cell1->text();
             }
 
@@ -170,7 +214,7 @@ class ImportLotrTcgCards extends Command
         $card->save();
     }
 
-    private function importCardImage(Card $card, Crawler $image_el): void
+    private function importCardImage(Model $model, Crawler $image_el): void
     {
         $uri = $image_el->attr('src');
 
@@ -180,13 +224,16 @@ class ImportLotrTcgCards extends Command
 
         $url = $this->base_url . $uri;
 
-        if ($this->overwrite_image) {
-            if($card->hasMedia('primary')) {
-                $card->deleteMedia($card->getFirstMedia('primary')->id);
-            }
+        if ($model->hasMedia('primary') && $this->overwrite_image) {
+            $this->info("> Deleting existing card image");
+            $model->deleteMedia($model->getFirstMedia('primary')->id);
 
+            $model->refresh();
+        }
+
+        if (!$model->hasMedia('primary')) {
             $this->info("> Importing card image");
-            $card->addMediaFromUrl($url)->toMediaCollection('primary');
+            $model->addMediaFromUrl($url)->toMediaCollection('primary');
         }
     }
 
