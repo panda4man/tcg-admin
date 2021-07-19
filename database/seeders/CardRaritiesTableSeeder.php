@@ -17,23 +17,23 @@ class CardRaritiesTableSeeder extends Seeder
     {
         $rarities = [
             [
-                'name' => 'AFD',
+                'name'  => 'AFD',
                 'label' => 'April Fool\'s Day'
             ],
             [
-                'name' => 'D',
+                'name'  => 'D',
                 'label' => 'Reprint',
             ],
             [
-                'name' => 'M',
+                'name'  => 'M',
                 'label' => 'Oversized'
             ],
             [
-                'name' => 'SPD',
+                'name'  => 'SPD',
                 'label' => 'Saint Patrick\'s Day'
             ],
             [
-                'name' => 'W',
+                'name'  => 'W',
                 'label' => 'Online only'
             ],
             [
@@ -42,7 +42,11 @@ class CardRaritiesTableSeeder extends Seeder
             ],
             [
                 'name'  => 'R+',
-                'label' => 'Rare Plus'  
+                'label' => 'Rare Plus'
+            ],
+            [
+                'name'  => 'RF',
+                'label' => 'Rare Foil',
             ],
             [
                 'name'  => 'U',
@@ -59,6 +63,10 @@ class CardRaritiesTableSeeder extends Seeder
             [
                 'name'  => 'S',
                 'label' => 'Starter'
+            ],
+            [
+                'name'  => 'O',
+                'label' => 'Legends Masterworks'
             ]
         ];
 
@@ -68,15 +76,15 @@ class CardRaritiesTableSeeder extends Seeder
             return;
         }
 
-        collect($rarities)->each(function ($block) use($game) {
+        collect($rarities)->each(function ($block) use ($game) {
             $rarity = CardRarity::where([
                 'name' => $block['name']
             ])->forGame($game)->first();
 
-            if(!$rarity) {
+            if (!$rarity) {
                 $rarity = CardRarity::make([
                     'label' => $block['label'],
-                    'name' => $block['name'],
+                    'name'  => $block['name'],
                 ]);
 
                 $rarity->game()->associate($game)->save();
