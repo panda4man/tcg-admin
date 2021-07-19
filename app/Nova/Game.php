@@ -48,8 +48,8 @@ class Game extends Resource
             ID::make(__('ID'), 'id')->sortable(),
             Text::make('Name')->sortable()->rules('required'),
             Images::make('Main image', 'primary')
-            ->conversionOnIndexView('thumb')
-            ->rules('nullable'),
+                  ->conversionOnIndexView('thumb')
+                  ->rules('nullable'),
             Number::make('Series Count', function () {
                 return $this->series_count;
             }),

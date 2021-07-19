@@ -5,6 +5,7 @@ namespace App\Nova;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
@@ -24,9 +25,9 @@ class Card extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'title';
 
-    public static $perPageOptions = [10, 25, 50];
+    public static $perPageOptions = [25, 50, 100];
 
     /**
      * The columns that should be searched.
@@ -53,15 +54,17 @@ class Card extends Resource
     public function fields(Request $request)
     {
         return [
-            ID::make(__('ID'), 'id')->sortable(),
-            Number::make('Card Number')->rules('nullable')->sortable(),
-            BelongsTo::make('Card Rarity', 'rarity')->sortable(),
+            ID::make(__('ID'), 'id')->sortable()->hideFromIndex(),
+            Number::make('Card #', 'card_number')->rules('nullable')->sortable(),
             Text::make('Title')->sortable(),
+            Images::make('Photo', 'primary')
+                  ->conversionOnIndexView('thumb')
+                  ->rules('nullable'),
+            BelongsTo::make('Rarity', 'rarity', CardRarity::class)->sortable(),
+            BelongsTo::make('Culture', 'culture', CardCulture::class)->sortable(),
             Text::make('Game Text')->rules('nullable')->hideFromIndex(),
             BelongsTo::make('Series'),
-            Images::make('Main image', 'primary')
-                ->conversionOnIndexView('thumb')
-                ->rules('nullable'),
+            HasMany::make('Variants', 'variants', CardVariant::class)->hideFromIndex()
         ];
     }
 
@@ -84,7 +87,11 @@ class Card extends Resource
      */
     public function filters(Request $request)
     {
-        return [];
+        return [
+            new \App\Nova\Filters\CardRarity(),
+            new \App\Nova\Filters\CardCulture(),
+            new \App\Nova\Filters\CardVariant()
+        ];
     }
 
     /**
@@ -107,5 +114,18 @@ class Card extends Resource
     public function actions(Request $request)
     {
         return [];
+    }
+
+    public static function relatableQuery(NovaRequest $request, $query)
+    {
+        if($request->route('field') == 'tcg-cards') {
+            $collection = $request->findModelOrFail();
+
+            $query->whereDoesntHave('collections', function ($q) use($collection) {
+                $q->where('collections.id', $collection->id);
+            });
+        }
+
+        return $query;
     }
 }

@@ -2,8 +2,10 @@
 
 namespace App\Nova;
 
+use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class CardVariant extends Resource
@@ -22,7 +24,7 @@ class CardVariant extends Resource
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'name';
 
     /**
      * The columns that should be searched.
@@ -31,6 +33,8 @@ class CardVariant extends Resource
      */
     public static $search = [
         'id',
+        'name',
+        'description'
     ];
 
     /**
@@ -43,6 +47,11 @@ class CardVariant extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable(),
+            Text::make('Name')->rules('required'),
+            Images::make('Photo', 'primary')
+                  ->conversionOnIndexView('thumb')
+                  ->rules('nullable'),
+            Text::make('Description')
         ];
     }
 

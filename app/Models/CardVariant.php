@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -15,9 +16,19 @@ class CardVariant extends Model implements HasMedia
     use SoftDeletes;
     use InteractsWithMedia;
 
+    protected $fillable = ['name', 'description'];
+
     public function card()
     {
         return $this->belongsTo(Card::class);
+    }
+
+    // -----------------------
+    //      Filters
+
+    public function scopeTengwar(Builder $q)
+    {
+        $q->where('description', 'tengwar');
     }
 
     // -----------------------
