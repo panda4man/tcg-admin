@@ -20,6 +20,8 @@ class Game extends Resource
 
     public static $group = 'Administration';
 
+    public static $priority = 2;
+
     /**
      * The single value that should be used to represent the resource when being displayed.
      *

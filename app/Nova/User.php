@@ -19,6 +19,8 @@ class User extends Resource
 
     public static $group = 'Administration';
 
+    public static $priority = 1;
+
     /**
      * The single value that should be used to represent the resource when being displayed.
      *

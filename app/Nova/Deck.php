@@ -50,6 +50,7 @@ class Deck extends Resource
             ID::make(__('ID'), 'id')->sortable()->hideFromIndex(),
             Text::make('Name'),
             BelongsTo::make('Collection')->rules('required'),
+            Number::make('Cards', 'cards_count'),
             BelongsToMany::make('Cards')->fields(function () {
                 return [
                     Number::make('Count')

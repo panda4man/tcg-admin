@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\Concerns\HasGame;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -28,5 +29,10 @@ class CardRarity extends Model
     public function game(): BelongsTo
     {
         return $this->belongsTo(Game::class);
+    }
+
+    public function scopeWithCardCount(Builder $query)
+    {
+        $query->withCount('cards');
     }
 }

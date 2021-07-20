@@ -14,6 +14,8 @@ class Deck extends Model
 
     protected $fillable = ['name'];
 
+    protected $withCount = ['cards'];
+
     public function cards(): BelongsToMany
     {
         return $this->belongsToMany(Card::class)->withPivot('count')->withTimestamps();

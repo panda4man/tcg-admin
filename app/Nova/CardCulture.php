@@ -4,7 +4,9 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
@@ -47,7 +49,9 @@ class CardCulture extends Resource
             ID::make(__('ID'), 'id')->sortable(),
             Text::make('Name')->sortable()->rules('required'),
             BelongsTo::make('Game'),
-            BelongsTo::make('Card Alignment', 'alignment')->nullable()
+            BelongsTo::make('Card Alignment', 'alignment')->nullable(),
+            Number::make('Cards', 'cards_count'),
+            HasMany::make('Cards'),
         ];
     }
 
@@ -93,5 +97,15 @@ class CardCulture extends Resource
     public function actions(Request $request)
     {
         return [];
+    }
+
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        return $query->withCardCount();
+    }
+
+    public static function detailQuery(NovaRequest $request, $query)
+    {
+        return $query->withCardCount();
     }
 }

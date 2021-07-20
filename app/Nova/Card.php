@@ -30,6 +30,8 @@ class Card extends Resource
 
     public static $perPageOptions = [25, 50, 100];
 
+    public static $perPageViaRelationship = 25;
+
     public static $group = 'General';
 
     /**
@@ -72,7 +74,7 @@ class Card extends Resource
             BelongsTo::make('Culture', 'culture', CardCulture::class)->sortable(),
             Text::make('Game Text')->rules('nullable')->hideFromIndex(),
             BelongsTo::make('Series')->rules('required'),
-            HasMany::make('Variants', 'variants', CardVariant::class)->hideFromIndex(),
+            HasMany::make('Variants', 'variants', CardVariant::class),
             BelongsToMany::make('Collections')->fields(function () {
                 return [
                     Number::make('Count')
