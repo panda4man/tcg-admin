@@ -5,6 +5,7 @@ namespace App\Nova;
 use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\BelongsToMany;
 use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Number;
@@ -29,6 +30,8 @@ class Card extends Resource
 
     public static $perPageOptions = [25, 50, 100];
 
+    public static $group = 'General';
+
     /**
      * The columns that should be searched.
      *
@@ -42,7 +45,12 @@ class Card extends Resource
 
     public static function uriKey()
     {
-        return 'tcg-cards';
+        return 'tcgCards';
+    }
+
+    public function title() //maybe optimize this..loading unecessary models with series and rarity..
+    {
+        return sprintf("%d%s%d %s", $this->series->set_number, $this->rarity->name, $this->card_number, $this->title);
     }
 
     /**
@@ -56,15 +64,20 @@ class Card extends Resource
         return [
             ID::make(__('ID'), 'id')->sortable()->hideFromIndex(),
             Number::make('Card #', 'card_number')->rules('nullable')->sortable(),
-            Text::make('Title')->sortable(),
+            Text::make('Title')->sortable()->rules('required'),
             Images::make('Photo', 'primary')
                   ->conversionOnIndexView('thumb')
                   ->rules('nullable'),
-            BelongsTo::make('Rarity', 'rarity', CardRarity::class)->sortable(),
+            BelongsTo::make('Rarity', 'rarity', CardRarity::class)->sortable()->rules('required'),
             BelongsTo::make('Culture', 'culture', CardCulture::class)->sortable(),
             Text::make('Game Text')->rules('nullable')->hideFromIndex(),
-            BelongsTo::make('Series'),
-            HasMany::make('Variants', 'variants', CardVariant::class)->hideFromIndex()
+            BelongsTo::make('Series')->rules('required'),
+            HasMany::make('Variants', 'variants', CardVariant::class)->hideFromIndex(),
+            BelongsToMany::make('Collections')->fields(function () {
+                return [
+                    Number::make('Count')
+                ];
+            })
         ];
     }
 
@@ -121,9 +134,7 @@ class Card extends Resource
         if($request->route('field') == 'tcg-cards') {
             $collection = $request->findModelOrFail();
 
-            $query->whereDoesntHave('collections', function ($q) use($collection) {
-                $q->where('collections.id', $collection->id);
-            });
+            $query->notInCollection($collection);
         }
 
         return $query;

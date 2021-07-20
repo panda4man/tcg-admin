@@ -4,6 +4,7 @@ namespace App\Nova;
 
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
@@ -48,6 +49,7 @@ class CardRarity extends Resource
             Text::make('Name')->sortable()->rules('required'),
             Text::make('Label')->sortable()->rules('required'),
             BelongsTo::make('Game'),
+            HasMany::make('Cards')
         ];
     }
 

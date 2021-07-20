@@ -4,9 +4,9 @@ namespace App\Nova;
 
 use Ebess\AdvancedNovaMediaLibrary\Fields\Images;
 use Illuminate\Http\Request;
+use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
-use Laravel\Nova\Http\Requests\NovaRequest;
 
 class CardVariant extends Resource
 {
@@ -17,7 +17,7 @@ class CardVariant extends Resource
      */
     public static $model = \App\Models\CardVariant::class;
 
-    public static $group = 'Administration';
+    public static $group = 'General';
 
     /**
      * The single value that should be used to represent the resource when being displayed.
@@ -51,7 +51,8 @@ class CardVariant extends Resource
             Images::make('Photo', 'primary')
                   ->conversionOnIndexView('thumb')
                   ->rules('nullable'),
-            Text::make('Description')
+            Text::make('Description'),
+            BelongsTo::make('Card')->searchable()->rules('required')
         ];
     }
 
