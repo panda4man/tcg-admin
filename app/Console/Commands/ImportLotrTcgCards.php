@@ -204,8 +204,10 @@ class ImportLotrTcgCards extends Command
                 return true;
             }
 
-            if ($cell0->count() == 'Game Text') {
+            if ($cell0->text() == 'Game Text') {
                 $card->game_text = $cell1->text();
+            } else if ($cell0->text() == 'Lore') {
+                $card->lore = $cell1->text();
             }
 
             return true;
