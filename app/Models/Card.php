@@ -18,6 +18,8 @@ class Card extends Model implements HasMedia
 
     protected $fillable = ['title', 'card_number', 'game_text', 'lore'];
 
+    protected $with = ['rarity', 'series'];
+
     // -----------------------
     //      Relationships
 
@@ -60,6 +62,13 @@ class Card extends Model implements HasMedia
     {
         $query->whereHas('rarity', function (Builder $q) use ($rarity) {
             $q->where("{$rarity->getTable()}.id", $rarity->id);
+        });
+    }
+
+    public function scopeNotInCollection(Builder $query, Collection $collection)
+    {
+        $query->whereDoesntHave('collections', function ($q) use($collection) {
+            $q->where("{$collection->getTable()}.id", $collection->id);
         });
     }
 
