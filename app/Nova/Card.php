@@ -73,6 +73,7 @@ class Card extends Resource
             BelongsTo::make('Rarity', 'rarity', CardRarity::class)->sortable()->rules('required'),
             BelongsTo::make('Culture', 'culture', CardCulture::class)->sortable(),
             Text::make('Game Text')->rules('nullable')->hideFromIndex(),
+            Text::make('Lore')->nullable()->hideFromIndex(),
             BelongsTo::make('Series')->rules('required'),
             HasMany::make('Variants', 'variants', CardVariant::class),
             BelongsToMany::make('Collections')->fields(function () {
