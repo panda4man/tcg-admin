@@ -70,6 +70,8 @@ class Card extends Resource
             Images::make('Photo', 'primary')
                   ->conversionOnIndexView('thumb')
                   ->rules('nullable'),
+            Text::make('Type')->onlyOnDetail(),
+            Text::make('Subtype')->onlyOnDetail(),
             BelongsTo::make('Rarity', 'rarity', CardRarity::class)->sortable()->rules('required'),
             BelongsTo::make('Culture', 'culture', CardCulture::class)->sortable(),
             Text::make('Game Text')->rules('nullable')->hideFromIndex(),

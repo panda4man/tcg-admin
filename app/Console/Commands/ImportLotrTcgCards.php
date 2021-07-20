@@ -100,7 +100,7 @@ class ImportLotrTcgCards extends Command
         $series       = Series::whereSetNumber($info_details[1])->first();
         $is_tengwar   = $info_details[4] == 'T';
 
-        if($this->only_tengwar && !$is_tengwar) {
+        if ($this->only_tengwar && !$is_tengwar) {
             return;
         }
 
@@ -208,6 +208,11 @@ class ImportLotrTcgCards extends Command
                 $card->game_text = $cell1->text();
             } else if ($cell0->text() == 'Lore') {
                 $card->lore = $cell1->text();
+            } else if ($cell0->text() == 'Card Type') {
+                $type_tree     = $cell1->text();
+                $parts         = explode('•', $type_tree, 2);
+                $card->type    = trim($parts[0] ?? null);
+                $card->subtype = trim($parts[1] ?? null);
             }
 
             return true;
