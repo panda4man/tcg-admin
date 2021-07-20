@@ -77,6 +77,11 @@ class Card extends Resource
                 return [
                     Number::make('Count')
                 ];
+            }),
+            BelongsToMany::make('Decks')->fields(function () {
+                return [
+                    Number::make('Count')
+                ];
             })
         ];
     }
@@ -131,10 +136,22 @@ class Card extends Resource
 
     public static function relatableQuery(NovaRequest $request, $query)
     {
-        if($request->route('field') == 'tcg-cards') {
+        //attaching a card to a collection
+        //filter to only cards not that collection
+        if($request->route('resource') == 'collections') {
+            /** @var \App\Models\Collection $collection */
             $collection = $request->findModelOrFail();
 
             $query->notInCollection($collection);
+        }
+
+        //attaching a card to a deck
+        //filter to only cards in that deck's collection
+        if($request->route('resource') == 'decks') {
+            /** @var \App\Models\Deck $deck */
+            $deck = $request->findModelOrFail();
+
+            $query->forCollection($deck->collection);
         }
 
         return $query;
