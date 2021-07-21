@@ -40,9 +40,7 @@ class Card extends Resource
      * @var array
      */
     public static $search = [
-        'id',
-        'title',
-        'game_text'
+        'title'
     ];
 
     public static function uriKey()
