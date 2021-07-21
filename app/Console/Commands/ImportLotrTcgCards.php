@@ -83,6 +83,8 @@ class ImportLotrTcgCards extends Command
             return true;
         });
 
+        $this->info("Finished processing series: " . $series_items->where('set_number', $series_choice)->first()->name);
+
         return 0;
     }
 
