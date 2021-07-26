@@ -52,7 +52,7 @@ class CardVariant extends Resource
                   ->conversionOnIndexView('thumb')
                   ->rules('nullable'),
             Text::make('Description'),
-            BelongsTo::make('Card')->searchable()->rules('required')
+            BelongsTo::make('Card', 'card', TcgCard::class)->searchable()->rules('required')
         ];
     }
 

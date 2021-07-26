@@ -51,7 +51,7 @@ class CardRarity extends Resource
             Text::make('Label')->sortable()->rules('required'),
             BelongsTo::make('Game'),
             Number::make('Cards', 'cards_count'),
-            HasMany::make('Cards')
+            HasMany::make('Cards', 'cards', TcgCard::class)
         ];
     }
 

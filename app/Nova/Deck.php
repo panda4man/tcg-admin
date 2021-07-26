@@ -51,7 +51,7 @@ class Deck extends Resource
             Text::make('Name'),
             BelongsTo::make('Collection')->rules('required'),
             Number::make('Cards', 'cards_count'),
-            BelongsToMany::make('Cards')->fields(function () {
+            BelongsToMany::make('Cards', 'cards', TcgCard::class)->fields(function () {
                 return [
                     Number::make('Count')
                 ];

@@ -50,8 +50,8 @@ class CardCulture extends Resource
             Text::make('Name')->sortable()->rules('required'),
             BelongsTo::make('Game'),
             BelongsTo::make('Card Alignment', 'alignment')->nullable(),
-            Number::make('Cards', 'cards_count'),
-            HasMany::make('Cards'),
+            Number::make('Cards', 'cards_count')->sortable(),
+            HasMany::make('Cards', 'cards', TcgCard::class),
         ];
     }
 

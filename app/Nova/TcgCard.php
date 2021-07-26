@@ -12,7 +12,7 @@ use Laravel\Nova\Fields\Number;
 use Laravel\Nova\Fields\Text;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class Card extends Resource
+class TcgCard extends Resource
 {
     /**
      * The model the resource corresponds to.
@@ -43,11 +43,6 @@ class Card extends Resource
         'title'
     ];
 
-    public static function uriKey()
-    {
-        return 'tcgCards';
-    }
-
     public function title() //maybe optimize this..loading unecessary models with series and rarity..
     {
         return sprintf("%d%s%d %s", $this->series->set_number, $this->rarity->name, $this->card_number, $this->title);
@@ -63,7 +58,7 @@ class Card extends Resource
     {
         return [
             ID::make(__('ID'), 'id')->sortable()->hideFromIndex(),
-            Number::make('Card #', 'card_number')->rules('nullable')->sortable(),
+            Number::make('TcgCard #', 'card_number')->rules('nullable')->sortable(),
             Text::make('Title')->sortable()->rules('required'),
             Images::make('Photo', 'primary')
                   ->conversionOnIndexView('thumb')

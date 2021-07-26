@@ -49,13 +49,14 @@ class Collection extends Resource
         return [
             ID::make(__('ID'), 'id')->sortable(),
             Text::make('Name')->sortable()->rules('required'),
-            BelongsTo::make('Game'),
-            BelongsToMany::make('Cards', 'cards', Card::class)->searchable()->fields(function () {
+            BelongsTo::make('Game')->rules('required'),
+            BelongsTo::make('User')->rules('required'),
+            BelongsToMany::make('Cards', 'cards', TcgCard::class)->searchable()->fields(function () {
                 return [
                     Number::make('Count')
                 ];
             }),
-            Number::make('Cards Count', 'cards_total_count')->onlyOnIndex()->onlyOnDetail()
+            Number::make('Cards Count', 'cards_total_count')->exceptOnForms()
         ];
     }
 
@@ -111,5 +112,16 @@ class Collection extends Resource
     public static function detailQuery(NovaRequest $request, $query)
     {
         return $query->withCardCount();
+    }
+
+    public static function relatableQuery(NovaRequest $request, $query)
+    {
+        //only show collections owned by the user when attaching to cards
+        if ($request->route('resource') === TcgCard::uriKey()
+            || $request->route('resource') == Deck::uriKey()) {
+            $query->forUser(auth()->user());
+        }
+
+        return $query;
     }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use DB;
+use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -32,13 +34,28 @@ class Collection extends Model
         return $this->belongsTo(Game::class);
     }
 
+    public function user(): BelongsTo
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    // -------------------
+    //      Scopes
+
     public function scopeWithCardCount(Builder $query)
     {
         $query->addSelect([
-            'cards_total_count' => \DB::table('card_collection as cc')
+            'cards_total_count' => DB::table('card_collection as cc')
                                       ->whereColumn('cc.collection_id', 'collections.id')
                                       ->selectRaw('SUM(cc.count)')
 
         ]);
+    }
+
+    public function scopeForUser(Builder $query, Authenticatable $user)
+    {
+        $query->whereHas('user', function ($query) use($user) {
+            $query->where("{$user->getTable()}.id", $user->id);
+        });
     }
 }

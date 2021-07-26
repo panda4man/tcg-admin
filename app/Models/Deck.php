@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -16,6 +17,9 @@ class Deck extends Model
 
     protected $withCount = ['cards'];
 
+    // ---------------------
+    //      Relationships
+
     public function cards(): BelongsToMany
     {
         return $this->belongsToMany(Card::class)->withPivot('count')->withTimestamps();
@@ -24,5 +28,15 @@ class Deck extends Model
     public function collection(): BelongsTo
     {
         return $this->belongsTo(Collection::class);
+    }
+
+    // ---------------------
+    //      Scopes
+
+    public function scopeInCollection(Builder $query, Collection $collection)
+    {
+        $query->whereHas('collection', function ($query) use ($collection) {
+            $query->where("{$collection->getTable()}.id", $collection->id);
+        });
     }
 }
