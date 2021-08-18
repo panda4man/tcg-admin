@@ -2,6 +2,7 @@
 
 namespace App\Nova;
 
+use App\Models\CardRarity;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Fields\BelongsToMany;
@@ -56,7 +57,12 @@ class Collection extends Resource
                     Number::make('Count')
                 ];
             }),
-            Number::make('Cards Count', 'cards_total_count')->exceptOnForms()
+            Number::make('Cards Count', 'cards_total_count')->exceptOnForms(),
+            Number::make('Rare Count')->displayUsing(function ($target, $resource) {
+                return $resource->cards()->forRarity(
+                    CardRarity::whereName('R')->first()
+                )->count();
+            })->onlyOnDetail()
         ];
     }
 
