@@ -61,7 +61,7 @@ class Collection extends Resource
             Number::make('Rare Count')->displayUsing(function ($target, $resource) {
                 return $resource->cards()->forRarity(
                     CardRarity::whereName('R')->first()
-                )->count();
+                )->get()->sum('pivot.count');
             })->onlyOnDetail()
         ];
     }

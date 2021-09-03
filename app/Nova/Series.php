@@ -58,7 +58,7 @@ class Series extends Resource
             ->conversionOnIndexView('thumb') // conversion used to display the image
             ->rules('nullable'), // validation rules
             BelongsTo::make('Game'),
-            HasMany::make('Cards')
+            HasMany::make('Cards', 'cards', TcgCard::class)
         ];
     }
 
